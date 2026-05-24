@@ -24,16 +24,26 @@ public class NetworkPlayer : NetworkBehaviour
     [Networked]
     public IngredientType HeldIngredient { get; set; }
 
+    [Networked]
+    public PotionState HeldPotionState { get; set; }
+
     private GameObject _heldVisual;
 
     private IngredientType _lastVisualIngredient =
         IngredientType.None;
 
+    private PotionState _lastVisualPotionState =
+        PotionState.Raw;
+
     private IngredientDispenser _nearbyDispenser;
 
     private PotionMixer _nearbyMixer;
 
+    private PotionCauldron _nearbyCauldron;
+
     private DeliveryZone _nearbyDeliveryZone;
+
+    private TrashBin _nearbyTrashBin;
 
     private float _pickupCooldown = 0f;
 
@@ -79,7 +89,11 @@ public class NetworkPlayer : NetworkBehaviour
 
         DetectNearbyMixer();
 
+        DetectNearbyCauldron();
+
         DetectNearbyDeliveryZone();
+
+        DetectNearbyTrashBin();
 
         _pickupCooldown -= Runner.DeltaTime;
 
@@ -177,6 +191,29 @@ public class NetworkPlayer : NetworkBehaviour
         }
     }
 
+    private void DetectNearbyCauldron()
+    {
+        _nearbyCauldron = null;
+
+        Collider[] hits =
+            Physics.OverlapSphere(
+                transform.position,
+                _interactionRadius
+            );
+
+        foreach (Collider hit in hits)
+        {
+            PotionCauldron cauldron =
+                hit.GetComponent<PotionCauldron>();
+
+            if (cauldron != null)
+            {
+                _nearbyCauldron = cauldron;
+                return;
+            }
+        }
+    }
+
     private void DetectNearbyDeliveryZone()
     {
         _nearbyDeliveryZone = null;
@@ -200,8 +237,42 @@ public class NetworkPlayer : NetworkBehaviour
         }
     }
 
+    private void DetectNearbyTrashBin()
+    {
+        _nearbyTrashBin = null;
+
+        Collider[] hits =
+            Physics.OverlapSphere(
+                transform.position,
+                _interactionRadius
+            );
+
+        foreach (Collider hit in hits)
+        {
+            TrashBin trash =
+                hit.GetComponent<TrashBin>();
+
+            if (trash != null)
+            {
+                _nearbyTrashBin = trash;
+                return;
+            }
+        }
+    }
+
     private void Interact()
     {
+        if (_nearbyTrashBin != null)
+        {
+            if (HeldIngredient !=
+                IngredientType.None)
+            {
+                ClearIngredient();
+            }
+
+            return;
+        }
+
         if (_nearbyDeliveryZone != null)
         {
             if (HeldIngredient !=
@@ -211,7 +282,8 @@ public class NetworkPlayer : NetworkBehaviour
                 {
                     bool success =
                         OrderManager.Instance.TryDeliver(
-                            HeldIngredient
+                            HeldIngredient,
+                            HeldPotionState
                         );
 
                     if (success)
@@ -219,6 +291,45 @@ public class NetworkPlayer : NetworkBehaviour
                         ClearIngredient();
                     }
                 }
+            }
+
+            return;
+        }
+
+        if (_nearbyCauldron != null)
+        {
+            if (HeldIngredient ==
+                IngredientType.None)
+            {
+                IngredientType potion;
+                PotionState state;
+
+                bool success =
+                    _nearbyCauldron.TryTakePotion(
+                        out potion,
+                        out state
+                    );
+
+                if (success)
+                {
+                    HeldIngredient =
+                        potion;
+
+                    HeldPotionState =
+                        state;
+                }
+
+                return;
+            }
+
+            bool placed =
+                _nearbyCauldron.TryAddPotion(
+                    HeldIngredient
+                );
+
+            if (placed)
+            {
+                ClearIngredient();
             }
 
             return;
@@ -234,6 +345,9 @@ public class NetworkPlayer : NetworkBehaviour
                 {
                     HeldIngredient =
                         _nearbyMixer.CurrentColor;
+
+                    HeldPotionState =
+                        PotionState.Raw;
 
                     _nearbyMixer.CurrentColor =
                         IngredientType.None;
@@ -259,6 +373,9 @@ public class NetworkPlayer : NetworkBehaviour
         {
             HeldIngredient =
                 _nearbyDispenser.IngredientType;
+
+            HeldPotionState =
+                PotionState.Raw;
         }
     }
 
@@ -274,16 +391,24 @@ public class NetworkPlayer : NetworkBehaviour
 
         HeldIngredient =
             IngredientType.None;
+
+        HeldPotionState =
+            PotionState.Raw;
     }
 
     private void UpdateHeldVisual()
     {
         if (_lastVisualIngredient ==
-            HeldIngredient)
+            HeldIngredient &&
+            _lastVisualPotionState ==
+            HeldPotionState)
             return;
 
         _lastVisualIngredient =
             HeldIngredient;
+
+        _lastVisualPotionState =
+            HeldPotionState;
 
         if (_heldVisual != null)
         {
@@ -363,6 +488,19 @@ public class NetworkPlayer : NetworkBehaviour
                 renderer.material.color =
                     new Color(0.5f, 0f, 1f);
                 break;
+        }
+
+        if (HeldPotionState ==
+            PotionState.Cooked)
+        {
+            renderer.material.color *= 0.7f;
+        }
+
+        if (HeldPotionState ==
+            PotionState.Burned)
+        {
+            renderer.material.color =
+                Color.black;
         }
 
         _heldVisual = visual;
