@@ -155,6 +155,54 @@ RectTransform:
   m_AnchoredPosition: {x: -5, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &116717255
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 116717257}
+  - component: {fileID: 116717256}
+  m_Layer: 0
+  m_Name: OrderBoardUI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &116717256
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 116717255}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e47b1294657fa6c44872e23630042dbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OrderBoardUI
+  _orderManager: {fileID: 1699751466}
+  _orderContainer: {fileID: 1287797264}
+  _orderCardPrefab: {fileID: 6990593563250873929, guid: 14030015e0ef93e4c8c666c7fa2bac8a, type: 3}
+  _totalMoneyText: {fileID: 877834861}
+--- !u!4 &116717257
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 116717255}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 824.7771, y: -0.00003, z: 1386.4667}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &146430892
 GameObject:
   m_ObjectHideFlags: 0
@@ -2973,11 +3021,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee2cf2c487a586148adb963f201c32ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OrderManager
-  _orderContainer: {fileID: 1287797264}
-  _orderCardPrefab: {fileID: 6990593563250873929, guid: 14030015e0ef93e4c8c666c7fa2bac8a, type: 3}
-  _totalMoneyText: {fileID: 877834861}
-  _maxOrders: 3
   _TotalMoney: 0
+  _maxOrders: 3
 --- !u!4 &1699751467
 Transform:
   m_ObjectHideFlags: 0
@@ -4101,8 +4146,9 @@ SceneRoots:
   - {fileID: 233802047}
   - {fileID: 455240131}
   - {fileID: 1831048949}
-  - {fileID: 1699751467}
   - {fileID: 220829588}
   - {fileID: 1959827933}
   - {fileID: 884238167}
   - {fileID: 832156570}
+  - {fileID: 1699751467}
+  - {fileID: 116717257}
