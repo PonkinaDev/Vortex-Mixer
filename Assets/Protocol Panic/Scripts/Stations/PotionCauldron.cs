@@ -5,22 +5,20 @@ using UnityEngine.UI;
 public class PotionCauldron : NetworkBehaviour
 {
     [Header("Visual")]
-    [SerializeField]
-    private Material _potionMaterial;
+    [SerializeField] private Material _potionMaterial;
+
+    // Arrastra aquí SOLO el objeto del líquido (por ejemplo, Element 1)
+    [SerializeField] private GameObject _liquidVisual;
 
     [Header("Progress")]
-    [SerializeField]
-    private Slider _progressBar;
+    [SerializeField] private Slider _progressBar;
 
-    [SerializeField]
-    private Image _progressFill;
+    [SerializeField] private Image _progressFill;
 
     [Header("Cook Settings")]
-    [SerializeField]
-    private float _cookTime = 5f;
+    [SerializeField] private float _cookTime = 5f;
 
-    [SerializeField]
-    private float _burnTime = 10f;
+    [SerializeField] private float _burnTime = 10f;
 
     [Networked]
     public IngredientType CurrentPotion { get; set; }
@@ -31,11 +29,8 @@ public class PotionCauldron : NetworkBehaviour
     [Networked]
     public float CookTimer { get; set; }
 
-    private IngredientType _lastPotion =
-        IngredientType.None;
-
-    private PotionState _lastState =
-        PotionState.Raw;
+    private IngredientType _lastPotion = IngredientType.None;
+    private PotionState _lastState = PotionState.Raw;
 
     public override void FixedUpdateNetwork()
     {
@@ -59,9 +54,7 @@ public class PotionCauldron : NetworkBehaviour
         UpdateProgressBar();
     }
 
-    public bool TryAddPotion(
-        IngredientType ingredient
-    )
+    public bool TryAddPotion(IngredientType ingredient)
     {
         if (CurrentPotion != IngredientType.None)
             return false;
@@ -73,10 +66,7 @@ public class PotionCauldron : NetworkBehaviour
         return true;
     }
 
-    public bool TryTakePotion(
-        out IngredientType potion,
-        out PotionState state
-    )
+    public bool TryTakePotion(out IngredientType potion, out PotionState state)
     {
         potion = IngredientType.None;
         state = PotionState.Raw;
@@ -96,11 +86,20 @@ public class PotionCauldron : NetworkBehaviour
 
     private void UpdateVisual()
     {
-        if (_lastPotion == CurrentPotion &&
-            _lastState == CurrentState)
+        bool hasPotion = CurrentPotion != IngredientType.None;
+
+        if (_liquidVisual != null)
+            _liquidVisual.SetActive(hasPotion);
+
+        if (!hasPotion)
         {
+            _lastPotion = IngredientType.None;
+            _lastState = PotionState.Raw;
             return;
         }
+
+        if (_lastPotion == CurrentPotion && _lastState == CurrentState)
+            return;
 
         _lastPotion = CurrentPotion;
         _lastState = CurrentState;
@@ -109,10 +108,7 @@ public class PotionCauldron : NetworkBehaviour
             return;
 
         _potionMaterial.color =
-            IngredientColorUtility.GetPotionColor(
-                CurrentPotion,
-                CurrentState
-            );
+            IngredientColorUtility.GetPotionColor(CurrentPotion, CurrentState);
     }
 
     private void UpdateProgressBar()
@@ -130,36 +126,24 @@ public class PotionCauldron : NetworkBehaviour
 
         if (CookTimer <= _cookTime)
         {
-            _progressBar.value =
-                Mathf.Clamp01(
-                    CookTimer / _cookTime
-                );
+            _progressBar.value = Mathf.Clamp01(CookTimer / _cookTime);
 
             if (_progressFill != null)
-            {
-                _progressFill.color =
-                    Color.green;
-            }
+                _progressFill.color = Color.green;
         }
         else
         {
             _progressBar.value = 1f;
 
-            float burnProgress =
-                Mathf.InverseLerp(
-                    _cookTime,
-                    _burnTime,
-                    CookTimer
-                );
+            float burnProgress = Mathf.InverseLerp(_cookTime, _burnTime, CookTimer);
 
             if (_progressFill != null)
             {
-                _progressFill.color =
-                    Color.Lerp(
-                        Color.green,
-                        Color.red,
-                        burnProgress
-                    );
+                _progressFill.color = Color.Lerp(
+                    Color.green,
+                    Color.red,
+                    burnProgress
+                );
             }
         }
     }

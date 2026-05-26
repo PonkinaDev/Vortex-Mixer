@@ -20,7 +20,7 @@ MonoBehaviour:
   - type: 3
     icon: {fileID: 21300000, guid: 43d365f36348fe94ab2561db8bd40300, type: 3}
   - type: 4
-    icon: {fileID: 21300000, guid: 8b3fb26f3317a61438fb5680a5490f5f, type: 3}
+    icon: {fileID: 21300000, guid: 98e8fddd80a08534aa84d4ef97f266c1, type: 3}
   - type: 5
     icon: {fileID: 21300000, guid: 11caf8457878aeb4d9bbece43e379fee, type: 3}
   - type: 6
